@@ -64,6 +64,19 @@ User.checkPhoneNumber = (phoneNumber, result) =>{
         }
     })
 }
+
+User.getUserbyID = (idUser, result) =>{
+    db.query('SELECT * FROM user WHERE id_user = ?',idUser, (err, res) =>{
+        if (err){
+            console.log('Error check id user', err);
+            result(err,null);
+        }else {
+            console.log('Check id user successfully');
+            result(null, res);
+        }
+    })
+}
+
 User.checkToken = (token, result) =>{
     db.query('SELECT * FROM user WHERE token = ?',token, (err, res) =>{
         if (err){
@@ -101,10 +114,9 @@ User.createToken = (std, token, result) =>{
                 console.log('Update token successfully');
                 result(null, res);
             }
+      })
+    }
 
-        })
-
-}
 
 
 module.exports=User;

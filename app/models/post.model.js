@@ -18,6 +18,7 @@ Post.get_list_posts = function (result) {
         }
     });
 }
+
 Post.AddPost = function (data, result) {
     db.query("INSERT INTO tbl_post SET ?", data, function (err, post) {
         if (err) {
@@ -45,4 +46,46 @@ User.createToken = (idsuer, token, result) => {
         })
    }
 */
+Post.CheckIdUser = (IdUser, result) =>{
+    console.log(IdUser);
+        db.query('SELECT * FROM tbl_post WHERE 	id_user = ?',IdUser, (err, res) =>{
+            if (err){
+                console.log('Error check id  user ', err);
+                result(err,null);
+            }else {
+                console.log('Check id user successfully');
+                result(null, res);
+            }
+        })
+}
+
+Post.CheckIdPost = (IdPost, result) =>{
+    console.log(IdPost);
+        db.query('SELECT * FROM tbl_post WHERE 	id = ?',IdPost, (err, res) =>{
+            if (err){
+                console.log('Error check id  post ', err);
+                result(err,null);
+            }else {
+                console.log('Check id post successfully');
+                result(null, res);
+            }
+        })
+}
+/*
+Post.createTokenPost = (std, token, result) =>{
+    
+    db.query("UPDATE user SET token = ? WHERE sdt_user = ?",[token,std],
+        (err, res) => {
+            if(err)
+            { 
+                console.log('Error update token', err);
+                result(err,null);
+
+            }else {
+                console.log('Update token successfully');
+                result(null, res);
+            }
+      })
+    }
+   */ 
 module.exports=Post;
