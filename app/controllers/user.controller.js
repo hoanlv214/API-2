@@ -1,6 +1,7 @@
 var User = require('../models/user.model');
 
 var jwt = require('jsonwebtoken');
+
 exports.get_list = function (rep, res) {
   User.get_all(function (data) {
     // res.send({result:data});
@@ -124,13 +125,15 @@ exports.login_user = function (rep, res) {
                 }))
               } else {
                 User.checkPhoneNumber(rep.body.sdt_user, (err, user) => {
+                //  res.status(400).send()
+                  
                   res.send(JSON.stringify({
                     Code: 1000,
                     Message: 'ok đăng nhập thành công',
                     Data: user[0],
                     // Token: accessToken
                   }));
-                })
+              })
               }
             })
           } else {
