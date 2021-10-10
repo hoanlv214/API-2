@@ -36,7 +36,7 @@ Post.CheckIdUser = (IdUser, result) =>{
 }
 
 Post.CheckPostById = (IdPost, result) =>{
-    console.log(IdPost);
+ //   console.log(IdPost);
         db.query('SELECT * FROM tbl_post WHERE 	id = ?',IdPost, (err, res) =>{
             if (err){
                 console.log('Error check id  post ', err);
@@ -58,5 +58,32 @@ Post.get_list_posts = function (result) {
            }
        });
 }
-   
+
+Post.get_list_post_id_to_id = (last_id, count, result )=>{
+    db.query(`SELECT * FROM tbl_post LIMIT ${last_id - 1}, ${count}`,(err, res) =>{
+        if (err){
+            console.log('Error while fetching post', err);
+            result(err,null);
+        }else {
+            console.log('Post fetched successfully');
+            result(null,res);
+        }
+    })
+}
+Post.updatePost = (id, content_post, result) =>{
+    
+    db.query("UPDATE tbl_post SET content_post = ? WHERE id = ?",[content_post,id],
+        (err, res) => {
+            if(err)
+            { 
+                console.log('Error update token', err);
+                result(err,null);
+
+            }else {
+                console.log('Update token successfully');
+                result(null, res);
+            }
+      })
+}
+
 module.exports=Post;
