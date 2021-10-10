@@ -8,16 +8,6 @@ const Post = function (post) {
     this.id_list_user_like = post.id_list_user_like;
     this.date_create=post.date_create;
 }
-Post.get_list_posts = function (result) {
- db.query("SELECT * FROM tbl_post", function (err,post) {
-        //   console.log(user);
-        if (err) {
-            result(null);
-        } else {
-            result(post);
-        }
-    });
-}
 
 Post.AddPost = function (data, result) {
     db.query("INSERT INTO tbl_post SET ?", data, function (err, post) {
@@ -32,20 +22,6 @@ Post.AddPost = function (data, result) {
     });
 
 }
-/*
-User.createToken = (idsuer, token, result) => {
-    db.query("UPDATE tbl_post SET token = ? WHERE idsuer = ?", [token, std],
-        (err, res) => {
-            if (err) {
-                console.log('Error update token', err);
-                result(err, null);
-            } else {
-                console.log('Update token successfully');
-                result(null, res);
-            }
-        })
-   }
-*/
 Post.CheckIdUser = (IdUser, result) =>{
     console.log(IdUser);
         db.query('SELECT * FROM tbl_post WHERE 	id_user = ?',IdUser, (err, res) =>{
@@ -59,7 +35,7 @@ Post.CheckIdUser = (IdUser, result) =>{
         })
 }
 
-Post.CheckIdPost = (IdPost, result) =>{
+Post.CheckPostById = (IdPost, result) =>{
     console.log(IdPost);
         db.query('SELECT * FROM tbl_post WHERE 	id = ?',IdPost, (err, res) =>{
             if (err){
@@ -71,21 +47,16 @@ Post.CheckIdPost = (IdPost, result) =>{
             }
         })
 }
-/*
-Post.createTokenPost = (std, token, result) =>{
-    
-    db.query("UPDATE user SET token = ? WHERE sdt_user = ?",[token,std],
-        (err, res) => {
-            if(err)
-            { 
-                console.log('Error update token', err);
-                result(err,null);
 
-            }else {
-                console.log('Update token successfully');
-                result(null, res);
-            }
-      })
-    }
-   */ 
+Post.get_list_posts = function (result) {
+    db.query("SELECT * FROM tbl_post", function (err,post) {
+           //   console.log(user);
+           if (err) {
+               result(null);
+           } else {
+               result(post);
+           }
+       });
+}
+   
 module.exports=Post;

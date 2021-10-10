@@ -2,19 +2,6 @@ var Post = require('../models/post.model');
 var User = require('../models/user.model');
 var jwt = require('jsonwebtoken');
 
-exports.get_list_posts = function (rep, res) {
-  Post.get_list_posts(function (data) {
-    if (data == null) {
-      res.send(JSON.stringify({
-        code: 1001,
-        message: 'khong the kết nối với database'
-      }));
-    }
-    else {
-      res.send({ result: data });
-    }
-  });
-}
 // 1
 exports.add_post = function (rep, res) {
   var content = rep.body.content_post;
@@ -103,7 +90,7 @@ exports.get_post = function (rep, res) {
   var id_post = rep.body.id_post;
   var token = rep.body.token;
   console.log(id_post);
-  Post.CheckIdPost(id_post, (err, post) => {
+  Post.CheckPostById(id_post, (err, post) => {
     if (err) {
       res.send(JSON.stringify({
         code: 1001,
@@ -179,6 +166,57 @@ exports.get_post = function (rep, res) {
   }
   )
 }
+//3
+exports.get_list_posts = function (rep, res) {
+  var count = rep.body.count;
+  var token = rep.body.token;
+  var index = rep.body.index;
+  var last_id = rep.body.last_id;
+  if (count == null || index == null || index == undefined || index == undefined) {
+    res.send(JSON.stringify({
+      code: 1004,
+      message: 'Parameter value is invalid'
+    }));
+  }
+  else {
+    User.checkToken(token, (err, userchecktoken) => {
+      if (err) {
+        res.send(JSON.stringify({
+          code: 1001,
+          message: 'khong the kết nối với database'
+        }));
+      } else {
+        if (userchecktoken.length !== 0) {
+          Post.get_list_posts(function (data) {
+            if (data == null) {
+              res.send(JSON.stringify({
+                code: 1001,
+                message: 'khong the kết nối với database'
+              }));
+            }
+            else {
+              //  res.send({ result: data });
+              res.send(JSON.stringify({
+                code: 1000,
+                message: 'ok',
+                data: data
+              }));
+
+            }
+          });
+        }
+        else {
+          res.send(JSON.stringify({
+            code: 9998,
+            message: 'Token is invalid'
+          }));
+        }
+
+      }
+    })
+  }
+}
+
 exports.check_new_item = function (rep, res) {
   var id_user = rep.body.id_user;
   var token = rep.body.token;
@@ -195,6 +233,8 @@ exports.delete_post = function (rep, res) {
   var token = rep.body.token;
 
 }
+
+
 
 
 
