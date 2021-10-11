@@ -1,6 +1,6 @@
 var Post = require('../models/post.model');
 var User = require('../models/user.model');
-//var Erro1 = require('../module/erro.module');
+//var Erro1 = require('../module/Module.token');
 var jwt = require('jsonwebtoken');
 
 // 1
@@ -347,7 +347,7 @@ exports.edit_post = function (rep, res) {
   var image = rep.body.image;
   if (token == "" || token == undefined || token == null || id == undefined || id == "" || id<=0|| id == null) {
     code1004(res);
-   // Erro1.code1004(res);
+   // Erro1.code1004(res);   Erro1.show();
   }
   else {
     User.checkToken(token, (err, userchecktoken) => {
