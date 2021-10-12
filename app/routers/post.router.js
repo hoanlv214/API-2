@@ -10,7 +10,7 @@ module.exports = function(router)
 
    //API get_list_posts 3  gần ok
    router.post('/post/get_list_posts',postController.get_list_posts);
-  
+     
    //check_new_item 4   ok
   router.post('/post/check_new_item',postController.check_new_item);
 
@@ -18,7 +18,7 @@ module.exports = function(router)
    router.put('/post/edit_post',postController.edit_post);
 
    //delete_post 6
-   router.get('/post/delete_post',postController.delete_post);
+   router.delete('/post/delete_post',postController.delete_post);
 
 
 

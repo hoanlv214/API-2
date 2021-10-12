@@ -1,31 +1,22 @@
 var Post = require('../models/post.model');
 var User = require('../models/user.model');
-//var Erro1 = require('../module/Module.token');
+var Erro = require('../moduleAll/Erro.moduleAll');
 var jwt = require('jsonwebtoken');
 
 // 1
-exports.add_post = function (rep, res) {
-  var content = rep.body.content_post;
-  var token = rep.body.token;
+exports.add_post = function (req, res) {
+  var content = req.body.content_post;
+  var token = req.body.token;
   if (content.length >= 200 || content.length == 0 || token.length == 0 || token == undefined || content == undefined) {
-    res.send(JSON.stringify({
-      code: '1002',
-      message: 'Parameter is not enought'
-    }))
+    Erro.code1002(res);
   }
   else {
     User.checkToken(token, (err, user) => {
       if (err) {
-        res.send(JSON.stringify({
-          code: 1001,
-          message: 'khong the kết nối với database'
-        }));
+        Erro.code1001(res);
       } else {
         if (user.length == 0) {
-          res.send(JSON.stringify({
-            code: '1002',
-            message: 'Parameter is not enought'
-          }))
+          Erro.code1002(res);
         }
         else {
           let date_ob = new Date();
@@ -63,10 +54,7 @@ exports.add_post = function (rep, res) {
           }
           Post.AddPost(DataNewPost, function (postb) {
             if (postb == null) {
-              res.send(JSON.stringify({
-                code: 1001,
-                message: 'khong the kết nối với database'
-              }));
+              Erro.code1001(res);
             }
             else {
               var DataNewPost = {
@@ -87,33 +75,24 @@ exports.add_post = function (rep, res) {
 }
 
 //2
-exports.get_post = function (rep, res) {
-  var id_post = rep.body.id_post;
-  var token = rep.body.token;
+exports.get_post = function (req, res) {
+  var id_post = req.body.id_post;
+  var token = req.body.token;
   // console.log(token);
   Post.CheckPostById(id_post, (err, post) => {
     if (err) {
-      res.send(JSON.stringify({
-        code: 1001,
-        message: 'khong the kết nối với database'
-      }));
+      Erro.code1001(res);
     } else {
 
       User.checkToken(token, (err, userchecktoken) => {
         if (err) {
-          res.send(JSON.stringify({
-            code: 1001,
-            message: 'khong the kết nối với database'
-          }));
+          Erro.code1001(res);
         } else {
           if (userchecktoken.length !== 0) {
             if (post.length !== 0) {
               User.getUserbyID(post[0].id_user, (err, user) => {
                 if (err) {
-                  res.send(JSON.stringify({
-                    code: 1001,
-                    message: 'khong the kết nối với database'
-                  }));
+                  Erro.code1001(res);
                 }
                 else {
                   // console.log("get post test"+user[0].id_user);
@@ -149,17 +128,11 @@ exports.get_post = function (rep, res) {
               })
             }
             else {
-              res.send(JSON.stringify({
-                code: 9994,
-                message: 'No Data or end of list data'
-              }));
+              Erro.code9994(res);
             }
           }
           else {
-            res.send(JSON.stringify({
-              code: 9998,
-              message: 'Token is invalid'
-            }));
+            Erro.code9998(res);
           }
         }
       })
@@ -167,38 +140,30 @@ exports.get_post = function (rep, res) {
   }
   )
 }
+
 //3
+exports.get_list_posts = function (req, res) {
+  var count = req.body.count;
+  var token = req.body.token;
+  var index = req.body.index;
+  var last_id = req.body.last_id;
 
-exports.get_list_posts = function (rep, res) {
-  var count = rep.body.count;
-  var token = rep.body.token;
-  var index = rep.body.index;
-  var last_id = rep.body.last_id;
 
-  // console.log("khi chua vao vòng lặp"+last_id);
+  console.log("khi chua vao vòng lặp" + last_id);
   console.log("khi chua vao vòng lặp" + token);
 
   if (count == '' || index == '' || count == null || index == null || index == undefined || index == undefined) {
-    res.send(JSON.stringify({
-      code: 1004,
-      message: 'Parameter value is invalid'
-    }));
+    Erro.code1004(res);
   }
   else {
     User.checkToken(token, (err, userchecktoken) => {
       if (err) {
-        res.send(JSON.stringify({
-          code: 1001,
-          message: 'khong the kết nối với database'
-        }));
+        Erro.code1001(res);
       } else {
         if (userchecktoken.length !== 0) {
           Post.get_list_post_id_to_id(last_id, count, (err, listpost) => {
             if (err) {
-              res.send(JSON.stringify({
-                code: '1001',
-                message: 'Can not connect to DB'
-              }));
+              Erro.code1001(res);
             } else {
               if (listpost.length !== 0) {
                 /*
@@ -223,10 +188,7 @@ exports.get_list_posts = function (rep, res) {
                 var newlastindexobj = listpost[listpost.length - 1];
                 var newlastindex = newlastindexobj.id + 1;
                 if (newlastindex == undefined || newlastindex == null || newlastindex == '') {
-                  res.send(JSON.stringify({
-                    code: 1004,
-                    message: 'Parameter value is invalid'
-                  }));
+                  Erro.code1004(res);
                 }
                 else {
                   res.send(JSON.stringify({
@@ -250,52 +212,31 @@ exports.get_list_posts = function (rep, res) {
           })
         }
         else {
-          res.send(JSON.stringify({
-            code: 9998,
-            message: 'Token is invalid'
-          }));
+          Erro.code9998(res);
         }
       }
     })
   }
 
 }
-
-function code1004(res) {
-  res.send(JSON.stringify({
-    code: 1004,
-    message: 'Parameter value is invalid'
-  }));
-}
-exports.check_new_item = function (rep, res) {
-  var last_id = rep.body.last_id;
-  var category_id = rep.body.category_id;
+//
+exports.check_new_item = function (req, res) {
+  var last_id = req.body.last_id;
+  var category_id = req.body.category_id;
   console.log(last_id);
   console.log(category_id);
   if (last_id == "" || last_id == null || last_id == undefined) {
-    /*
-    res.send(JSON.stringify({
-      code: 1004,
-      message: 'Parameter value is invalid'
-    }));
-    */
-    code1004(res);
+    Erro.code1004(res);
   }
   else {
     Post.CheckPostById(last_id, (err, post) => {
       if (err) {
-        res.send(JSON.stringify({
-          code: 1001,
-          message: 'khong the kết nối với database'
-        }));
+        Erro.code1001(res);
       } else {
         if (post.length !== 0) {
           User.getUserbyID(post[0].id_user, (err, user) => {
             if (err) {
-              res.send(JSON.stringify({
-                code: 1001,
-                message: 'khong the kết nối với database'
-              }));
+              Erro.code1001(res);
             }
             else {
               // console.log("get post test"+user[0].id_user);
@@ -330,76 +271,86 @@ exports.check_new_item = function (rep, res) {
           })
         }
         else {
-          res.send(JSON.stringify({
-            code: 9994,
-            message: 'No Data or end of list data'
-          }));
+          Erro.code9994(res);
         }
       }
     })
   }
 }
+
 // 5
-exports.edit_post = function (rep, res) {
-  var token = rep.body.token;
-  var id = rep.body.id;
-  var described = rep.body.described;
-  var image = rep.body.image;
-  if (token == "" || token == undefined || token == null || id == undefined || id == "" || id<=0|| id == null) {
-    code1004(res);
-   // Erro1.code1004(res);   Erro1.show();
+exports.edit_post = function (req, res) {
+  var token = req.body.token;
+  var id = req.body.id;
+  var described = req.body.described;
+  var image = req.body.image;
+  if (token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
+    Erro.code1004(res);
   }
   else {
     User.checkToken(token, (err, userchecktoken) => {
       if (err) {
-        res.send(JSON.stringify({
-          code: 1001,
-          message: 'khong the kết nối với database'
-        }));
+        Erro.code1001(res);
       } else {
         if (userchecktoken.length !== 0) {
-          if (described.length >= 200 ||described==""||described==null||described==undefined ||image.length >= 200||image==undefined||image==null) {
-            res.send(JSON.stringify({
-              code: '1002',
-              message: 'Parameter is not enought'
-            }))
+          if (described.length >= 200 || described == "" || described == null || described == undefined || image.length >= 200 || image == undefined || image == null) {
+            Erro.code1002(res);
           }
           else {
-            Post.updatePost(id, described,(err, response) => {
+            Post.updatePost(id, described, (err, response) => {
               if (err) {
-                res.send(JSON.stringify({
-                  code: 1001,
-                  message: 'khong the kết nối với database'
-                }));
+                Erro.code1001(err);
               }
               else {
                 res.send(JSON.stringify({
                   code: 1000,
                   message: 'ok',
-                //  data: response
+                  //  data: response
                 }))
               }
-
             })
           }
-
         } else {
-          res.send(JSON.stringify({
-            code: 9998,
-            message: 'Token is invalid'
-          }));
+          Erro.code9998(res);
         }
       }
     });
   }
 }
 
-exports.delete_post = function (rep, res) {
-  var id_user = rep.body.id_user;
-  var token = rep.body.token;
+exports.delete_post = function (req, res) {
+  var id = req.body.id;
+  var token = req.body.token;
+  if (token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
+    Erro.code1004(res);
+  }
+  else {
+    User.checkToken(token, (err, userchecktoken) => {
+      if (err) {
+        Erro.code1001(res);
+      } else {
+        if (userchecktoken.length !== 0) {
+          Post.Delete(id, (err, response) => {
+            if (err) {
+              Erro.code1001(err);
+            }
+            else {
+              if (response.affectedRows != 0) {
+                res.send(JSON.stringify({
+                  code: 1000,
+                  message: 'đã xóa bài viết thành công',
+                   data: response
+                }))
+              }
+              else {
+                Erro.code9992(res);
+              }
+            }
+          })
+        } else {
+          Erro.code9998(res);
+        }
+      }
+    })
+  }
 }
-
-
-
-
-

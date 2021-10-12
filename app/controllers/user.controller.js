@@ -3,11 +3,15 @@ var User = require('../models/user.model');
 var jwt = require('jsonwebtoken');
 
 exports.get_list = function (rep, res) {
+  
   User.get_all(function (data) {
-    // res.send({result:data});
     res.send({ result: data });
   });
+
 }
+
+
+
 exports.add_user = function (rep, res) {
   var phonenumber = rep.body.sdt_user;
   var password = rep.body.pass_user;

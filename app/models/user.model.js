@@ -115,7 +115,7 @@ User.createToken = (std, token, result) =>{
                 result(null, res);
             }
       })
-    }
+}
 
 
 
