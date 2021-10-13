@@ -16,7 +16,7 @@ exports.add_post = function (req, res) {
         Erro.code1001(res);
       } else {
         if (user.length == 0) {
-          Erro.code1002(res);
+          Erro.code9998(res);
         }
         else {
           let date_ob = new Date();
@@ -339,7 +339,7 @@ exports.delete_post = function (req, res) {
                 res.send(JSON.stringify({
                   code: 1000,
                   message: 'đã xóa bài viết thành công',
-                   data: response
+                  data: response
                 }))
               }
               else {
@@ -353,4 +353,162 @@ exports.delete_post = function (req, res) {
       }
     })
   }
+}
+
+/*
+
+- cái này ko  biết giải quyết
+Nhưng bài viết đã 
+bị khóa (do vi phạm tiêu chuẩn cộng đồng hoặc bị hạn 
+chế tại quốc gia) trước khi gửi báo cáo (trong lúc viết báo 
+cáo vẫn có tồn tại)
+Kết quả mong đợi: 1010 | bài viết bị biến mất trong trang 
+hiện tại. Nếu là trang chủ thì ứng dụng sẽ xóa bài viết đó. 
+
+
+*/
+exports.report_post = function (req, res) {
+  var token = req.body.token;
+  var id = req.body.id;
+  var subject = req.body.subject;
+  var details = req.body.details;
+  console.log(subject);
+  if (subject < 0 || details == "" || details == undefined || details == null || token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
+    Erro.code1004(res);
+  } else {
+    User.checkToken(token, (err, userchecktoken) => {
+      if (err) {
+        Erro.code1001(res);
+      } else {
+        if (userchecktoken.length !== 0) {
+
+          Post.CheckPostById(id, (err, post) => {
+            if (err) {
+              Erro.code1001(res);
+            } else {
+              if (post.length !== 0) {
+                res.send(JSON.stringify({
+                  code: 1000,
+                  message: 'Bài viết đang được xem xét'
+                }));
+              } else {
+                Erro.code9992(res);
+              }
+            }
+          })
+        } else {
+          Erro.code9998(res);
+        }
+      }
+    })
+  }
+}
+
+/*Tham số: token, id (của bài viết), index, count (để lấy danh 
+sách theo từng phần), trong trang trước không nói rõ nhưng 
+API này có thêm tham số token
+
+Trường is_blocked trả về 1 nếu người dùng (người đang xem 
+bình luận) bị người chủ bài viết chặn lại.
+
+Người dùng truyền đúng mã phiên đăng nhập, id bài viết, 
+các chỉ số khác đúng.
+Kết quả mong đợi: 1000 | OK (Thông báo thành công), 
+hiển thị ra danh sách các bình luận.
+
+
+Người dùng truyền đúng các thông tin. Nhưng bài viết đã 
+bị khóa (do vi phạm tiêu chuẩn cộng đồng hoặc bị hạn 
+chế tại quốc gia) trước khi gửi yêu cầu (trong lúc gửi yêu 
+cầu xem bình luận thì bài viết vẫn có tồn tại).
+Kết quả mong đợi: mã lỗi 1010 và bài viết bị biến mất 
+trong trang hiện tại. Nếu là trang chủ thì ứng dụng sẽ xóa 
+bài viết đó. Nếu là trang cá nhân thì có thể xóa bài viết đó 
+hoặc làm mới lại trang cá nhân (tùy thuộc tình huống).
+
+
+
+
+Người dùng truyền đúng các thông số. Nhưng hệ thống 
+chỉ còn số bình luận ít hơn số count.
+Kết quả mong đợi: ứng dụng cần hiển thị các bình luận 
+còn lại, nhưng chắc chắn không còn bình luận nào thêm 
+nữa, hệ thống sẽ không có câu “Tải thêm các bình luận...”
+
+8. Người dùng truyền đúng các thông tin. Nhưng người 
+dùng đã bị khóa tài khoản (do hệ thống khóa đi mất).
+Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
+trang đăng nhập. 
+
+
+*/
+
+exports.get_comment = function (req, res) {
+  var token = req.body.token;
+  var id = req.body.id;
+  var index = req.body.index;
+  var count = req.body.count;
+  if (count <= 0 || count == "" || count == undefined || count == null || index < 0 || index == "" || index == undefined || index == null || token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
+    Erro.code1004(res);
+  } else {
+    User.checkToken(token, (err, userchecktoken) => {
+      if (err) {
+        Erro.codeNoNet(res);
+      } else {
+        if (userchecktoken.length !== 0) {
+          Post.CheckPostById(id, (err, post) => {
+            if (err) {
+              Erro.codeNoNet(res);
+            } else {
+              if (post.length !== 0) {
+                Post.CheckCommnetByID(id, (err, comment) => {
+                  if (err) {
+                    Erro.code1001(res);
+                  } else {
+                    if (comment.length !== 0) {
+                      console.log(comment);
+                      Post.CheckCommnetByID2((err, allcomment) => {
+                        console.log(allcomment);
+
+                        if (err) {
+                          Erro.code1001(res);
+                        } else {
+                          if (allcomment.length !== 0) {
+                            console.log(allcomment);
+                            res.send(JSON.stringify({
+                              code: 1000,
+                              message: allcomment
+                            }));
+
+                          } else {
+                            res.send(JSON.stringify({
+                              code: 1000,
+                              message: "lỗi comment"
+                            }));
+
+                          }
+                        }
+
+                      }
+                      )
+                    } else {
+                      console.log("khong ton tai");
+
+                    }
+                  }
+                })
+              }
+              else {
+                Erro.code9992(res);
+              }
+            }
+          });
+        }
+        else {
+          Erro.code9998(res);
+        }
+      }
+    })
+  }
+
 }
