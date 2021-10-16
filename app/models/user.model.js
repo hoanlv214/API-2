@@ -65,6 +65,18 @@ User.checkPhoneNumber = (phoneNumber, result) =>{
     })
 }
 
+User.checkName_User = (pass_user, result) =>{
+    db.query('SELECT * FROM user WHERE pass_user = ?',pass_user, (err, res) =>{
+        if (err){
+            console.log('Error check name user', err);
+            result(err,null);
+        }else {
+            console.log('Check name user successfully');
+            result(null, res);
+        }
+    })
+}
+
 User.getUserbyID = (idUser, result) =>{
     db.query('SELECT * FROM user WHERE id_user = ?',idUser, (err, res) =>{
         if (err){

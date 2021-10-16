@@ -1,9 +1,9 @@
 var User = require('../models/user.model');
-
+var Erro = require('../moduleAll/Erro.moduleAll');
 var jwt = require('jsonwebtoken');
 
 exports.get_list = function (rep, res) {
-  
+
   User.get_all(function (data) {
     res.send({ result: data });
   });
@@ -74,7 +74,7 @@ exports.add_user = function (rep, res) {
   }
 }
 
-// login user
+// login user   còn thiếu nếu nếu sai tên tài khoản nó cũng ko cho vào
 exports.login_user = function (rep, res) {
   const data = rep.body;
   var phonenumber = rep.body.sdt_user;
@@ -113,6 +113,7 @@ exports.login_user = function (rep, res) {
         } else {
           if (user.length !== 0) {
             //console.log("khong lay duoc user pass"+user[0].id_user);
+
             const accessToken = jwt.sign({
               iss: user[0].pass_user,
               sub: user[0].sdt_user,
@@ -128,18 +129,34 @@ exports.login_user = function (rep, res) {
                   message: 'Can not connect to DB'
                 }))
               } else {
-                User.checkPhoneNumber(rep.body.sdt_user, (err, user) => {
-                //  res.status(400).send()
-                  
-                  res.send(JSON.stringify({
-                    Code: 1000,
-                    Message: 'ok đăng nhập thành công',
-                    Data: user[0],
-                    // Token: accessToken
-                  }));
-              })
+                User.checkPhoneNumber(rep.body.sdt_user, (err, userPhone) => {
+                  //  res.status(400).send()
+                  if (err) {
+                    Erro.code1001(res);
+                  }
+                  else {
+                    User.checkName_User(rep.body.pass_user, (err, user) => {
+
+                      if (userPhone.length != 0 && user.length != 0) {
+                        res.send(JSON.stringify({
+                          Code: 1000,
+                          Message: 'ok đăng nhập thành công',
+                          Data: user[0],
+                          // Token: accessToken
+                        }));
+                      }
+                      else {
+                        res.send(JSON.stringify({
+                          Code: 1004,
+                          Message: 'mật khẩu không đúng'
+                        }));
+                      }
+                    })
+                  }
+                })
               }
             })
+
           } else {
             res.send(JSON.stringify({
               Code: 9995,
@@ -165,7 +182,7 @@ exports.logout_user = function (rep, res) {
       }));
     } else {
       if (user.length !== 0) {
-       User.createToken(user[0].sdt_user,"", (err, response) => {
+        User.createToken(user[0].sdt_user, "", (err, response) => {
           console.log("check token with phomenumber" + rep.body.sdt_user);
           if (err) {
             res.send(JSON.stringify({

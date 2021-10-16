@@ -14,12 +14,17 @@ module.exports = function(router)
    //check_new_item 4   ok
   router.post('/post/check_new_item',postController.check_new_item);
 
-   //edit_post 5 ok
+   //edit_post 5 ok  ok
    router.put('/post/edit_post',postController.edit_post);
 
-   //delete_post 6
+   //delete_post 6  ok
    router.delete('/post/delete_post',postController.delete_post);
 
+   //report_post 7  ok
+   router.post('/post/report_post',postController.report_post);
+   
+   //get_comment 8
+   router.post('/post/get_comment',postController.get_comment);
 
 
       //git push -u

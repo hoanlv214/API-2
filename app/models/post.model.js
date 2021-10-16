@@ -71,8 +71,8 @@ Post.get_list_post_id_to_id = (last_id, count, result) => {
         }
     })
 }
-Post.updatePost = (id, content_post, result) => {
 
+Post.updatePost = (id, content_post, result) => {
     db.query("UPDATE tbl_post SET content_post = ? WHERE id = ?", [content_post, id],
         (err, res) => {
             if (err) {
@@ -87,12 +87,10 @@ Post.updatePost = (id, content_post, result) => {
 }
 
 Post.Delete = (id, result) => {
-
     db.query('DELETE FROM tbl_post WHERE id = ?', id, (err, res) => {
         if (err) {
             console.log('Error Delete Post', err);
             result(err, null);
-
         } else {
             console.log('deleted post');
             result(null, res);
@@ -100,4 +98,35 @@ Post.Delete = (id, result) => {
     });
 
 }
+
+// 
+Post.CheckCommnetByID = (IdPost, result) => {
+    //   console.log(IdPost);
+    db.query('SELECT * FROM tbl_comment WHERE id_post = ?', IdPost, (err, res) => {
+        if (err) {
+            console.log('Error check comment in post ', err);
+            result(err, null);
+        } else {
+            console.log('Checkcomment in post successfully');
+            result(null, res);
+        }
+    })
+}
+
+Post.CheckCommnetByID2 = (result) => {
+  
+    var sql = "SELECT tbl_comment.id AS comment, user.name_user AS Poster FROM tbl_comment JOIN user ON tbl_comment.id_user = user.id_user";
+   
+    db.query(sql, (err, res) => {
+        if (err) {
+            console.log('Error  ', err);
+            result(err, null);
+        } else {
+            console.log('');
+            result(null, res);
+        }
+    })
+}
+
+
 module.exports = Post;

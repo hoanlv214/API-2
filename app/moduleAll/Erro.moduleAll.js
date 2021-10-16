@@ -128,6 +128,13 @@ exports.code1010=(res)=> {
     }));
 }
 
+exports.codeNoNet=(res)=> {
+  res.send(JSON.stringify({
+    code: 1001,
+    message: 'Không thể kết nối Internet'
+  }));
+}
+
 
 
 
