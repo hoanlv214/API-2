@@ -16,6 +16,7 @@ exports.add_user = function (rep, res) {
   var phonenumber = rep.body.sdt_user;
   var password = rep.body.pass_user;
   if (phonenumber === null || password === null || phonenumber === '' || password === '' || phonenumber === undefined || password === undefined) {
+
     res.send(JSON.stringify({
       Code: 1002,
       Message: 'sai định dạng của số điện thoại hoặc mật khẩu'
@@ -80,11 +81,7 @@ exports.login_user = function (rep, res) {
   var phonenumber = rep.body.sdt_user;
   var password = rep.body.pass_user;
   if (phonenumber === null || password === null || phonenumber === '' || password === '') {
-    res.send(JSON.stringify({
-      Code: 1002,
-      Message: 'sai định dạng của số điện thoại hoặc mật khẩu'
-    }))
-
+    Erro.code1002();
   }
   else if (phonenumber.length !== 10 || phonenumber[0] !== '0') {
     console.log(phonenumber.length);
@@ -106,14 +103,9 @@ exports.login_user = function (rep, res) {
       User.checkPhoneNumber(rep.body.sdt_user, (err, user) => {
 
         if (err) {
-          res.send(JSON.stringify({
-            Code: 1001,
-            Message: 'khong the kết nối với database'
-          }));
+        Erro.code1001();
         } else {
           if (user.length !== 0) {
-            //console.log("khong lay duoc user pass"+user[0].id_user);
-
             const accessToken = jwt.sign({
               iss: user[0].pass_user,
               sub: user[0].sdt_user,
@@ -124,36 +116,31 @@ exports.login_user = function (rep, res) {
             User.createToken(rep.body.sdt_user, accessToken, (err, response) => {
               console.log("check token with phomenumber" + rep.body.sdt_user);
               if (err) {
-                res.send(JSON.stringify({
-                  code: '1001',
-                  message: 'Can not connect to DB'
-                }))
+                Erro.code1001();
               } else {
-                User.checkPhoneNumber(rep.body.sdt_user, (err, userPhone) => {
-                  //  res.status(400).send()
-                  if (err) {
-                    Erro.code1001(res);
-                  }
-                  else {
-                    User.checkName_User(rep.body.pass_user, (err, user) => {
+                if (user[0].pass_user == password) {
 
-                      if (userPhone.length != 0 && user.length != 0) {
-                        res.send(JSON.stringify({
-                          Code: 1000,
-                          Message: 'ok đăng nhập thành công',
-                          Data: user[0],
-                          // Token: accessToken
-                        }));
-                      }
-                      else {
-                        res.send(JSON.stringify({
-                          Code: 1004,
-                          Message: 'mật khẩu không đúng'
-                        }));
-                      }
-                    })
-                  }
-                })
+                  console.log(rep.body.sdt_user)
+                  User.checkPhoneNumber(rep.body.sdt_user, (err, userlogin) => {
+
+                    if (err) {
+                     Erro.code1001();
+                    } else {
+                      res.send(JSON.stringify({
+                        code: 1000,
+                        message: 'đăng nhập thành công',
+                        user: userlogin[0],
+                      }));
+                    }
+                  })
+
+                }
+                else {
+                  res.send(JSON.stringify({
+                    code: 1004,
+                    message: 'Mật khẩu không đúng'
+                  }));
+                }
               }
             })
 
@@ -163,7 +150,6 @@ exports.login_user = function (rep, res) {
               Message: ' Is Not Validated - số điện thoại chưa đăng ký'
             }));
           }
-          // Lúc đăng nhập thì phải query cái PhoneNumber thôi 
         }
       })
     }

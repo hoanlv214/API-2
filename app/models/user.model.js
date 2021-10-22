@@ -129,6 +129,17 @@ User.createToken = (std, token, result) =>{
       })
 }
 
+User.checkIsBlock = (idA, result) =>{
+    db.query('SELECT * FROM tbl_blocks WHERE id_blockA = ?',idA, (err, res) =>{
+        if (err){
+            console.log('Error check user block  ', err);
+            result(err,null);
+        }else {
+            console.log('check user block ok');
+            result(null, res);
+        }
+    })
+}
 
 
 module.exports=User;

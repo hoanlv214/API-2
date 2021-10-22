@@ -73,7 +73,10 @@ exports.add_post = function (req, res) {
     })
   }
 }
-
+/*
+• can_comment: người chủ bài viết đã khóa tính năng bình 
+luận cho toàn bà
+*/
 //2
 exports.get_post = function (req, res) {
   var id_post = req.body.id_post;
@@ -83,26 +86,44 @@ exports.get_post = function (req, res) {
     if (err) {
       Erro.code1001(res);
     } else {
-
       User.checkToken(token, (err, userchecktoken) => {
         if (err) {
           Erro.code1001(res);
         } else {
           if (userchecktoken.length !== 0) {
             if (post.length !== 0) {
+              var can_edit;
+              var isblocked;
+              if (userchecktoken[0].id_user == post[0].id_user) {
+                can_edit = "can edit"
+                isblocked = "not blocked"
+              } else {
+                can_edit = "can't edit"
+                //post[0].id_user user đăng bài viết
+                //userchecktoken[0].id_user user đang xem bài viết
+                User.checkIsBlock(post[0].id_user, (err, usercheckblock) => {
+                  if (err) {
+                    Erro.code1001(res);
+                  } else {
+                    console.log(usercheckblock[0].id_blockB + "+" + userchecktoken[0].id_user)
+                    if (usercheckblock[0].id_blockB == userchecktoken[0].id_user) {
+                      isblocked = "is blocked"
+                      console.log(isblocked);
+                    }
+                  }
+                })
+              }
               User.getUserbyID(post[0].id_user, (err, user) => {
                 if (err) {
                   Erro.code1001(res);
                 }
                 else {
-                  // console.log("get post test"+user[0].id_user);
-                  // console.log(post[0].id);
-
                   var getauthor = {
                     id: user[0].id_user,
                     name: user[0].name_user,
                     avatar: user[0].linkavatar_user,
                   }
+                  console.log(isblocked);
                   var DataGetPost = {
                     id: post[0].id,
                     described: post[0].content,
@@ -113,11 +134,9 @@ exports.get_post = function (req, res) {
                     is_like: "0",
                     author: getauthor,
                     stae: "online",
-                    // is_blocked:post.
-                    //  can_edit:post.can_edit,
-                    //   banned:post.banned,
-                    //  can comment:
-
+                    is_blocked: isblocked,
+                    can_edit: can_edit,
+                    //  can comment: can coomement;
                   }
                   res.send(JSON.stringify({
                     code: 1000,
@@ -147,10 +166,6 @@ exports.get_list_posts = function (req, res) {
   var token = req.body.token;
   var index = req.body.index;
   var last_id = req.body.last_id;
-
-
-  console.log("khi chua vao vòng lặp" + last_id);
-  console.log("khi chua vao vòng lặp" + token);
 
   if (count == '' || index == '' || count == null || index == null || index == undefined || index == undefined) {
     Erro.code1004(res);
@@ -219,6 +234,7 @@ exports.get_list_posts = function (req, res) {
   }
 
 }
+
 //
 exports.check_new_item = function (req, res) {
   var last_id = req.body.last_id;
@@ -330,6 +346,7 @@ exports.delete_post = function (req, res) {
         Erro.code1001(res);
       } else {
         if (userchecktoken.length !== 0) {
+
           Post.Delete(id, (err, response) => {
             if (err) {
               Erro.code1001(err);
@@ -339,7 +356,7 @@ exports.delete_post = function (req, res) {
                 res.send(JSON.stringify({
                   code: 1000,
                   message: 'đã xóa bài viết thành công',
-                  data: response
+                  data: userchecktoken
                 }))
               }
               else {
@@ -485,10 +502,8 @@ exports.get_comment = function (req, res) {
                               code: 1000,
                               message: "lỗi comment"
                             }));
-
                           }
                         }
-
                       }
                       )
                     } else {
