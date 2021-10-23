@@ -16,11 +16,7 @@ exports.add_user = function (rep, res) {
   var phonenumber = rep.body.sdt_user;
   var password = rep.body.pass_user;
   if (phonenumber === null || password === null || phonenumber === '' || password === '' || phonenumber === undefined || password === undefined) {
-
-    res.send(JSON.stringify({
-      Code: 1002,
-      Message: 'sai định dạng của số điện thoại hoặc mật khẩu'
-    }))
+    Erro.code1002();
 
   }
   else if (phonenumber.length !== 10 || phonenumber[0] !== '0') {
@@ -42,10 +38,7 @@ exports.add_user = function (rep, res) {
       var data = rep.body
       User.checkPhoneNumber(rep.body.sdt_user, (err, user) => {
         if (err) {
-          res.send(JSON.stringify({
-            Code: 1001,
-            Message: 'khong the kết nối với database'
-          }));
+         Erro.code1001();
         } else {
           if (user.length !== 0) {
             res.send(JSON.stringify({

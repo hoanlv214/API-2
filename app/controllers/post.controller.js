@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken');
 
 // 1
 exports.add_post = function (req, res) {
+
   var content = req.body.content_post;
   var token = req.body.token;
   if (content.length >= 200 || content.length == 0 || token.length == 0 || token == undefined || content == undefined) {
@@ -105,14 +106,22 @@ exports.get_post = function (req, res) {
                   if (err) {
                     Erro.code1001(res);
                   } else {
-                    console.log(usercheckblock[0].id_blockB + "+" + userchecktoken[0].id_user)
-                    if (usercheckblock[0].id_blockB == userchecktoken[0].id_user) {
-                      isblocked = "is blocked"
-                      console.log(isblocked);
+
+                    if (usercheckblock.length != 0) {
+                      // console.log(usercheckblock[0].id_blockB + "+" + userchecktoken[0].id_user)
+
+                      if (usercheckblock[0].id_blockB == userchecktoken[0].id_user) {
+                        isblocked = "is blocked"
+                        console.log(isblocked);
+                      }
+                    }
+                    else {
+                      isblocked = "not blocked"
                     }
                   }
                 })
               }
+
               User.getUserbyID(post[0].id_user, (err, user) => {
                 if (err) {
                   Erro.code1001(res);
@@ -123,14 +132,14 @@ exports.get_post = function (req, res) {
                     name: user[0].name_user,
                     avatar: user[0].linkavatar_user,
                   }
-                  console.log(isblocked);
+
                   var DataGetPost = {
                     id: post[0].id,
-                    described: post[0].content,
+                    described: post[0].content_post,
                     created: post[0].date_create,
                     modified: "No",
-                    like: post[0].id_list_user_like,
-                    comments: post[0].id_list_user_cm,
+                    like: post[0].id_list_user_like.split(",").length - 1,
+                    comments: post[0].id_list_user_cm.split(",").length - 1,
                     is_like: "0",
                     author: getauthor,
                     stae: "online",
@@ -143,6 +152,7 @@ exports.get_post = function (req, res) {
                     message: 'ok',
                     data: DataGetPost
                   }));
+
                 }
               })
             }
@@ -171,51 +181,110 @@ exports.get_list_posts = function (req, res) {
     Erro.code1004(res);
   }
   else {
+
     User.checkToken(token, (err, userchecktoken) => {
       if (err) {
         Erro.code1001(res);
       } else {
         if (userchecktoken.length !== 0) {
-          Post.get_list_post_id_to_id(last_id, count, (err, listpost) => {
+          let iduserdangxem = userchecktoken[0].id_user;
+
+          Post.get_list_post_id_to_id(index, count, (err, listpost) => {
             if (err) {
               Erro.code1001(res);
             } else {
               if (listpost.length !== 0) {
-                /*
-               var DataGetPost = {
-                 id: post[0].id,
-                 described: post[0].content,
-                 created: post[0].date_create,
-                 modified: "No",
-                 like: post[0].id_list_user_like,
-                 comments: post[0].id_list_user_cm,
-                 is_like: "0",
-                 author: getauthor,
-                 stae: "online",
-                 // is_blocked:post,
-                 //  can_edit:post.can_edit,
-                 //   banned:post.banned,
-                 //  can comment:
+                var idcheckcuoipost;
+                Post.get_list_posts((alllistpost) => {
+                  console.log("all list lengt" + alllistpost.length);
+                  idcheckcuoipost = alllistpost[alllistpost.length - 1].id;
+                  console.log("id bai viet cuoi cung la" + idcheckcuoipost);
+                })
+                var alldtPost = [];
+                let ok = 0;
+                for (let i = 0; i < listpost.length; i++) {
 
-               }
-               */
-                // chưa giải quyết được: output,4,5,6,7,8, 9,10,11,12 15
-                var newlastindexobj = listpost[listpost.length - 1];
-                var newlastindex = newlastindexobj.id + 1;
-                if (newlastindex == undefined || newlastindex == null || newlastindex == '') {
-                  Erro.code1004(res);
-                }
-                else {
-                  res.send(JSON.stringify({
-                    code: '1000',
-                    message: 'OK',
-                    data: listpost,
-                    last_id: newlastindex,
-                    new_item: 0,
-                    in_campaign: 0,
-                    campaign_id: 0,
 
-                  }))
+                  User.getUserbyID(listpost[i].id_user, (err, user) => {
+                    if (err) {
+                      Erro.code1001(res);
+                    }
+                    else {
+                      var can_edit;
+                      var isblocked = "not blocked";
+                      if (iduserdangxem == user[0].id_user) {
+                        can_edit = "can edit"
+
+                      }
+                      else {
+                        can_edit = "can't edit"
+
+                        //post[0].id_user user đăng bài viết
+                        //userchecktoken[0].id_user user đang xem bài viết
+                        User.checkIsBlock(listpost[i].id_user, (err, usercheckblock) => {
+                          if (err) {
+                            Erro.code1001(res);
+                          } else {
+
+                            if (usercheckblock.length != 0) {
+                              console.log(usercheckblock[0].id_blockB + "+" + userchecktoken[0].id_user)
+
+                              if (usercheckblock[0].id_blockB == userchecktoken[0].id_user) {
+                                isblocked = "is blocked"
+                                console.log(isblocked);
+                              }
+                            }
+                            else {
+                              isblocked = "not blocked"
+                            }
+                          }
+                        })
+                      }
+                      var getauthor = {
+                        id: user[0].id_user,
+                        name: user[0].name_user,
+                        avatar: user[0].linkavatar_user,
+                      }
+
+                      var DataGetPost = {
+                        id: listpost[i].id,
+                        described: listpost[i].content_post,
+                        created: listpost[i].date_create,
+                        modified: "No",
+                        like: listpost[i].id_list_user_like.split(",").length - 1,
+                        comments: listpost[i].id_list_user_cm.split(",").length - 1,
+                        is_like: "0",
+                        author: getauthor,
+                        stae: "online",
+                        is_blocked: isblocked,
+                        can_edit: can_edit,
+                        //  can comment: can coomement;
+                      }
+                      //  console.log(DataGetPost);
+                      alldtPost.push(DataGetPost);
+                      ok++;
+                      if (ok == listpost.length) {
+                        var newlastindexobj = listpost[listpost.length - 1];
+                        var newlastindex = newlastindexobj.id + 1;
+                        if (newlastindex == undefined || newlastindex == null || newlastindex == '') {
+                          Erro.code1004(res);
+                        }
+                        else {
+                          var newitem = idcheckcuoipost - newlastindexobj.id;
+                          console.log("so bài viet moi hiển thị " + newitem)
+                          res.send(JSON.stringify({
+                            code: '1000',
+                            message: 'OK',
+                            data: alldtPost,
+                            last_id: newlastindex,
+                            new_item: newitem,
+                            in_campaign: 0,
+                            campaign_id: 0,
+                          }))
+                        }
+                      }
+                    }
+                  });
                 }
               } else {
                 res.send(JSON.stringify({
@@ -225,12 +294,14 @@ exports.get_list_posts = function (req, res) {
               }
             }
           })
+
         }
         else {
           Erro.code9998(res);
         }
       }
     })
+
   }
 
 }
@@ -241,53 +312,67 @@ exports.check_new_item = function (req, res) {
   var category_id = req.body.category_id;
   console.log(last_id);
   console.log(category_id);
+  if (category_id == "" || category_id == null || category_id == undefined) {
+    category_id = 0;
+  }
   if (last_id == "" || last_id == null || last_id == undefined) {
     Erro.code1004(res);
   }
   else {
-    Post.CheckPostById(last_id, (err, post) => {
+    Post.get_list_post_id_to_id(last_id, category_id, (err, listpost) => {
       if (err) {
         Erro.code1001(res);
       } else {
-        if (post.length !== 0) {
-          User.getUserbyID(post[0].id_user, (err, user) => {
-            if (err) {
-              Erro.code1001(res);
-            }
-            else {
-              // console.log("get post test"+user[0].id_user);
-              // console.log(post[0].id);
-              var getauthor = {
-                id: user[0].id_user,
-                name: user[0].name_user,
-                avatar: user[0].linkavatar_user,
-              }
-              var DataGetPost = {
-                id: post[0].id,
-                described: post[0].content,
-                created: post[0].date_create,
-                modified: "No",
-                like: post[0].id_list_user_like,
-                comments: post[0].id_list_user_cm,
-                is_like: "0",
-                author: getauthor,
-                stae: "online",
-                // is_blocked:post.
-                //  can_edit:post.can_edit,
-                //   banned:post.banned,
-                //  can comment:
+        if (listpost.length !== 0) {
 
+          var alldtPost = [];
+          let ok = 0;
+          for (let i = 0; i < listpost.length; i++) {
+
+
+            User.getUserbyID(listpost[i].id_user, (err, user) => {
+              if (err) {
+                Erro.code1001(res);
               }
-              res.send(JSON.stringify({
-                code: 1000,
-                message: 'ok',
-                data: DataGetPost
-              }));
-            }
-          })
-        }
-        else {
-          Erro.code9994(res);
+              else {
+                var getauthor = {
+                  id: user[0].id_user,
+                  name: user[0].name_user,
+                  avatar: user[0].linkavatar_user,
+                }
+
+                var DataGetPost = {
+                  id: listpost[i].id,
+                  described: listpost[i].content_post,
+                  created: listpost[i].date_create,
+                  modified: "No",
+                  like: listpost[i].id_list_user_like.split(",").length - 1,
+                  comments: listpost[i].id_list_user_cm.split(",").length - 1,
+                  is_like: "0",
+                  author: getauthor,
+                  stae: "online",
+                  is_blocked: "not block",
+                  can_edit: "can edit ",
+                  //  can comment: can coomement;
+                }
+                //  console.log(DataGetPost);
+                alldtPost.push(DataGetPost);
+                ok++;
+                if (ok == listpost.length) {
+                  res.send(JSON.stringify({
+                    code: '1000',
+                    message: 'OK',
+                    data: alldtPost,
+                  }))
+                }
+              }
+            });
+          }
+        } else {
+          res.send(JSON.stringify({
+            code: '9994',
+            message: 'người dùng có thể kết bạn thêm'
+          }));
         }
       }
     })

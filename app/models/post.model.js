@@ -60,8 +60,9 @@ Post.get_list_posts = function (result) {
     });
 }
 
-Post.get_list_post_id_to_id = (last_id, count, result) => {
-    db.query(`SELECT * FROM tbl_post LIMIT ${last_id - 1}, ${count}`, (err, res) => {
+Post.get_list_post_id_to_id = (index, count, result) => {
+    db.query(`SELECT * FROM tbl_post LIMIT ${count} OFFSET ${index}`, (err, res) => {
+        //"SELECT * FROM customers LIMIT 5 OFFSET 2";
         if (err) {
             console.log('Error while fetching post', err);
             result(err, null);
@@ -127,6 +128,5 @@ Post.CheckCommnetByID2 = (result) => {
         }
     })
 }
-
 
 module.exports = Post;
