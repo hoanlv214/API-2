@@ -101,14 +101,13 @@ Post.Delete = (id, result) => {
 }
 
 // 
-Post.CheckCommnetByID = (IdPost, result) => {
-    //   console.log(IdPost);
-    db.query('SELECT * FROM tbl_comment WHERE id_post = ?', IdPost, (err, res) => {
+Post.CheckCommnetByID = (IdComment, result) => {
+    db.query('SELECT * FROM tbl_comment WHERE id = ?', IdComment, (err, res) => {
         if (err) {
-            console.log('Error check comment in post ', err);
+            console.log('Error check comment  ', err);
             result(err, null);
         } else {
-            console.log('Checkcomment in post successfully');
+            console.log('Checkcommentsuccessfully');
             result(null, res);
         }
     })

@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 
 require('./app/routers/user.router')(app);
 require('./app/routers/post.router')(app);
+require('./app/routers/comment.router')(app);
 
 app.listen(3000,function(){
 console.log("Server ok");

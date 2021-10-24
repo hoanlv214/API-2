@@ -202,50 +202,48 @@ exports.get_list_posts = function (req, res) {
                 })
                 var alldtPost = [];
                 let ok = 0;
-                for (let i = 0; i < listpost.length; i++) {
 
+                for (let i = 0; i < listpost.length; i++) {
 
                   User.getUserbyID(listpost[i].id_user, (err, user) => {
                     if (err) {
                       Erro.code1001(res);
                     }
                     else {
+
                       var can_edit;
                       var isblocked = "not blocked";
                       if (iduserdangxem == user[0].id_user) {
                         can_edit = "can edit"
-
                       }
                       else {
                         can_edit = "can't edit"
-
                         //post[0].id_user user đăng bài viết
                         //userchecktoken[0].id_user user đang xem bài viết
                         User.checkIsBlock(listpost[i].id_user, (err, usercheckblock) => {
                           if (err) {
                             Erro.code1001(res);
                           } else {
-
                             if (usercheckblock.length != 0) {
                               console.log(usercheckblock[0].id_blockB + "+" + userchecktoken[0].id_user)
-
                               if (usercheckblock[0].id_blockB == userchecktoken[0].id_user) {
                                 isblocked = "is blocked"
                                 console.log(isblocked);
                               }
                             }
                             else {
+
                               isblocked = "not blocked"
                             }
                           }
                         })
+
                       }
                       var getauthor = {
                         id: user[0].id_user,
                         name: user[0].name_user,
                         avatar: user[0].linkavatar_user,
                       }
-
                       var DataGetPost = {
                         id: listpost[i].id,
                         described: listpost[i].content_post,
@@ -285,7 +283,9 @@ exports.get_list_posts = function (req, res) {
                       }
                     }
                   });
+
                 }
+
               } else {
                 res.send(JSON.stringify({
                   code: '9994',
@@ -367,6 +367,7 @@ exports.check_new_item = function (req, res) {
                 }
               }
             });
+
           }
         } else {
           res.send(JSON.stringify({
@@ -398,18 +399,40 @@ exports.edit_post = function (req, res) {
             Erro.code1002(res);
           }
           else {
-            Post.updatePost(id, described, (err, response) => {
+            Post.CheckPostById(id, (err, post) => {
               if (err) {
-                Erro.code1001(err);
-              }
-              else {
-                res.send(JSON.stringify({
-                  code: 1000,
-                  message: 'ok',
-                  //  data: response
-                }))
+                Erro.code1001();
+              } else {
+                if (post.length != 0) {
+                  if (post[0].id_user == userchecktoken[0].id_user) {
+                    Post.updatePost(id, described, (err, response) => {
+                      if (err) {
+                        Erro.code1001(err);
+                      }
+                      else {
+                        res.send(JSON.stringify({
+                          code: 1000,
+                          message: 'ok',
+                          //  data: response
+                        }))
+                      }
+                    })
+                  } else {
+
+                    res.send(JSON.stringify({
+                      code: 9995,
+                      message: 'Bạn không bài là chủ bài viết nên không được edit'
+                    }));
+
+                  }
+
+                } else {
+                  Erro.code9992();
+                }
+
               }
             })
+            // if(userchecktoken[0].id_user==)
           }
         } else {
           Erro.code9998(res);
@@ -506,109 +529,5 @@ exports.report_post = function (req, res) {
   }
 }
 
-/*Tham số: token, id (của bài viết), index, count (để lấy danh 
-sách theo từng phần), trong trang trước không nói rõ nhưng 
-API này có thêm tham số token
-
-Trường is_blocked trả về 1 nếu người dùng (người đang xem 
-bình luận) bị người chủ bài viết chặn lại.
-
-Người dùng truyền đúng mã phiên đăng nhập, id bài viết, 
-các chỉ số khác đúng.
-Kết quả mong đợi: 1000 | OK (Thông báo thành công), 
-hiển thị ra danh sách các bình luận.
 
 
-Người dùng truyền đúng các thông tin. Nhưng bài viết đã 
-bị khóa (do vi phạm tiêu chuẩn cộng đồng hoặc bị hạn 
-chế tại quốc gia) trước khi gửi yêu cầu (trong lúc gửi yêu 
-cầu xem bình luận thì bài viết vẫn có tồn tại).
-Kết quả mong đợi: mã lỗi 1010 và bài viết bị biến mất 
-trong trang hiện tại. Nếu là trang chủ thì ứng dụng sẽ xóa 
-bài viết đó. Nếu là trang cá nhân thì có thể xóa bài viết đó 
-hoặc làm mới lại trang cá nhân (tùy thuộc tình huống).
-
-
-
-
-Người dùng truyền đúng các thông số. Nhưng hệ thống 
-chỉ còn số bình luận ít hơn số count.
-Kết quả mong đợi: ứng dụng cần hiển thị các bình luận 
-còn lại, nhưng chắc chắn không còn bình luận nào thêm 
-nữa, hệ thống sẽ không có câu “Tải thêm các bình luận...”
-
-8. Người dùng truyền đúng các thông tin. Nhưng người 
-dùng đã bị khóa tài khoản (do hệ thống khóa đi mất).
-Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
-trang đăng nhập. 
-
-
-*/
-
-exports.get_comment = function (req, res) {
-  var token = req.body.token;
-  var id = req.body.id;
-  var index = req.body.index;
-  var count = req.body.count;
-  if (count <= 0 || count == "" || count == undefined || count == null || index < 0 || index == "" || index == undefined || index == null || token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
-    Erro.code1004(res);
-  } else {
-    User.checkToken(token, (err, userchecktoken) => {
-      if (err) {
-        Erro.codeNoNet(res);
-      } else {
-        if (userchecktoken.length !== 0) {
-          Post.CheckPostById(id, (err, post) => {
-            if (err) {
-              Erro.codeNoNet(res);
-            } else {
-              if (post.length !== 0) {
-                Post.CheckCommnetByID(id, (err, comment) => {
-                  if (err) {
-                    Erro.code1001(res);
-                  } else {
-                    if (comment.length !== 0) {
-                      console.log(comment);
-                      Post.CheckCommnetByID2((err, allcomment) => {
-                        console.log(allcomment);
-
-                        if (err) {
-                          Erro.code1001(res);
-                        } else {
-                          if (allcomment.length !== 0) {
-                            console.log(allcomment);
-                            res.send(JSON.stringify({
-                              code: 1000,
-                              message: allcomment
-                            }));
-
-                          } else {
-                            res.send(JSON.stringify({
-                              code: 1000,
-                              message: "lỗi comment"
-                            }));
-                          }
-                        }
-                      }
-                      )
-                    } else {
-                      console.log("khong ton tai");
-
-                    }
-                  }
-                })
-              }
-              else {
-                Erro.code9992(res);
-              }
-            }
-          });
-        }
-        else {
-          Erro.code9998(res);
-        }
-      }
-    })
-  }
-
-}
