@@ -417,6 +417,7 @@ exports.edit_post = function (req, res) {
                         }))
                       }
                     })
+                    
                   } else {
 
                     res.send(JSON.stringify({
