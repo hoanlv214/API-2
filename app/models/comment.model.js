@@ -16,4 +16,32 @@ Comment.CheckCommnetByID = (IdComment, result) => {
         }
     })
 }
+
+Comment.AddComment = function (data, result) {
+    db.query("INSERT INTO tbl_comment SET ?", data, function (err, comment) {
+        if (err) {
+            console.log('Error create user', err);
+            return (null);
+        }
+        else {
+            console.log('Create user successfully');
+            result({ id: comment.insertId, ...data });
+        }
+    });
+
+}
+
+Comment.DeleteComment = (id, result) => {
+    db.query('DELETE FROM tbl_comment WHERE id = ?', id, (err, res) => {
+        if (err) {
+            console.log('Error Delete Comment', err);
+            result(err, null);
+        } else {
+            console.log('deleted comment');
+            result(null, res);
+        }
+    });
+
+}
+
 module.exports = Comment;

@@ -87,6 +87,21 @@ Post.updatePost = (id, content_post, result) => {
         })
 }
 
+Post.updateComment = (idpost, list_id_comment, result) => {
+    db.query("UPDATE tbl_post SET id_list_user_cm = ? WHERE id = ?", [list_id_comment, idpost],
+        (err, res) => {
+            if (err) {
+                console.log('Error update list id comment', err);
+                result(err, null);
+
+            } else {
+                console.log('Update list id comment successfully');
+                result(null, res);
+            }
+        })
+}
+
+
 Post.Delete = (id, result) => {
     db.query('DELETE FROM tbl_post WHERE id = ?', id, (err, res) => {
         if (err) {
