@@ -417,7 +417,7 @@ exports.edit_post = function (req, res) {
                         }))
                       }
                     })
-                    
+
                   } else {
 
                     res.send(JSON.stringify({
@@ -531,4 +531,110 @@ exports.report_post = function (req, res) {
 }
 
 
+/*
+3. Người dùng truyền đúng các thông tin. Nhưng bài viết đã 
+bị khóa (do vi phạm tiêu chuẩn cộng đồng hoặc bị hạn 
+chế tại quốc gia) trước khi gửi báo cáo (trong lúc viết báo 
+cáo vẫn có tồn tại).
+Kết quả mong đợi: mã lỗi 1010 và bài viết bị biến mất 
+trong trang hiện tại. Nếu là trang chủ thì ứng dụng sẽ xóa 
+bài viết đó. Nếu là trang cá nhân thì có thể xóa bài viết đó 
+hoặc làm mới lại trang cá nhân (tùy thuộc tình huống).
 
+4. Người dùng truyền đúng các thông tin. Nhưng người 
+dùng đã bị khóa tài khoản (do hệ thống khóa đi mất).
+Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
+trang đăng nhập.
+*/
+
+exports.adlike = function (req, res) {
+  var token = req.body.token;
+  var id = req.body.id;
+
+  if (token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null) {
+    Erro.code1004(res);
+  } else {
+    User.checkToken(token, (err, userchecktoken) => {
+      if (err) {
+        Erro.code1001(res);
+      } else {
+        if (userchecktoken.length !== 0) {
+
+          Post.CheckPostById(id, (err, post) => {
+            if (err) {
+              Erro.code1001(res);
+            } else {
+              if (post.length !== 0) {
+                var arraylistuserlike = post[0].id_list_user_like.split(",");
+                var checkuerlike = 0;
+                for (let i = 0; i < arraylistuserlike.length; i++) {
+                  //    console.log(arrayidcomment[i]);
+                  if (arraylistuserlike[i] == userchecktoken[0].id_user) {
+                    checkuerlike = 1;
+                    console.log("da tim thay id user da like" + arraylistuserlike[i]);
+                    arraylistuserlike.splice(i, 1);
+                  }
+                }
+                if (checkuerlike == 0) {
+                  if (arraylistuserlike == "0") {
+                    arraylistuserlike = "";
+                  }
+                  arraylistuserlike = arraylistuserlike.toString() + userchecktoken[0].id_user + ",";
+                  console.log("khi chua like thi like vao" + arraylistuserlike);
+                }
+                Post.updateLike(id, arraylistuserlike.toString(), (err, Postnewcomment) => {
+                  if (err) {
+                    Erro.code1001(res);
+                  }
+                  else {
+                    if (Postnewcomment.changedRows == 1) {
+                      Post.CheckPostById(id, (err, post) => {
+                        if (err) {
+                          Erro.code1001(res);
+                        } else {
+                          if (post.length !== 0) {
+                            var alliduserlike = post[0].id_list_user_like.split(",").length;
+                            if (alliduserlike < 0 || alliduserlike > 10000000) {
+                              if (checkuerlike == 1) {
+                                res.send(JSON.stringify({
+                                  message: 'bạn đã thích bài viết'
+                                }));
+                              } else {
+                                res.send(JSON.stringify({
+                                  message: 'không có lượt thích nào'
+                                }));
+                              }
+                            }
+                            else if (alliduserlike == 0 && checkuerlike == 0) {
+                              res.send(JSON.stringify({
+                                message: 'Bạn thích bài viết'
+                              }));
+                            } else {
+                              res.send(JSON.stringify({
+                                code: 1000,
+                                message: 'ok',
+                                data: post[0].id_list_user_like.split(",").length - 1
+                              }));
+                            }
+                          } else {
+                            Erro.code9992(res);
+                          }
+                        }
+                      })
+                    } else {
+                      Erro.codeNoNet(res);
+                    }
+                  }
+                })
+              } else {
+                Erro.code9992(res);
+              }
+            }
+          })
+        } else {
+          Erro.code9998(res);
+        }
+      }
+    })
+  }
+}

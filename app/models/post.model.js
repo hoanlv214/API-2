@@ -101,6 +101,19 @@ Post.updateComment = (idpost, list_id_comment, result) => {
         })
 }
 
+Post.updateLike = (idpost, list_id_user_like, result) => {
+    db.query("UPDATE tbl_post SET id_list_user_like = ? WHERE id = ?", [list_id_user_like, idpost],
+        (err, res) => {
+            if (err) {
+                console.log('Error update list id user like', err);
+                result(err, null);
+
+            } else {
+                console.log('Update list id user like successfully');
+                result(null, res);
+            }
+        })
+}
 
 Post.Delete = (id, result) => {
     db.query('DELETE FROM tbl_post WHERE id = ?', id, (err, res) => {

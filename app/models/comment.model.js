@@ -44,4 +44,15 @@ Comment.DeleteComment = (id, result) => {
 
 }
 
+Comment.updateComment = (idcomment, content_cm, result) =>{
+    db.query(`UPDATE tbl_comment SET content_cm = '${content_cm}' WHERE id = '${idcomment}'`,(err, res) =>{
+        if (err){
+            console.log('Error update comment', err);
+            result(err,null);
+        }else {
+            console.log('Update comment successfully');
+            result(null, res);
+        }
+    })
+}
 module.exports = Comment;

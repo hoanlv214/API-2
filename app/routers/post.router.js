@@ -23,6 +23,7 @@ module.exports = function(router)
    //report_post 7  ok
    router.post('/post/report_post',postController.report_post);
    
+   router.post('/post/like/adlike',postController.adlike);
   
 
       //git push -u

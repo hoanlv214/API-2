@@ -401,22 +401,6 @@ exports.delete_comment = function (req, res) {
   }
 }
 /*
-API thực hiện việc sửa một bình luận trong một bài viết của 
-tài khoản bình luận.
-Request dạng: POST.
-Tham số: token, id (của bài viết),id_com( của bình 
-luận),comment (nội dung đã chỉnh sửa).
-Kết quả đầu ra: 1000|OK - Nếu thành công thì sẽ cập nhật lại 
-bài viết.
-Nếu không thành công thì sẽ thông báo lỗi tương ứng.
-
-1. Người dùng truyền đúng mã phiên đăng nhập, id bài viết 
-và các tham số khác phù hợp.
-Kết quả mong đợi: 1000 | OK (Thông báo thành công), 
-gửi cho ứng dụng các thông tin cần thiết.
-
-
-
 3. Người dùng truyền đúng mã phiên đăng nhập, id bài viết 
 và các tham số khác phù hợp nhưng nội dung không phù 
 hợp để đăng (ví dụ ảnh giết hại động vật).
@@ -429,7 +413,7 @@ Kết quả mong đợi: mã lỗi 9995, ứng dụng hiển thị ra các
 thông tin cần thiết và đẩy người dùng sang trang đăng 
 nhập
 
-
+// da lam xong  y 5
 5. Người dùng truyền đúng mã phiên đăng nhập, id và các 
 tham số khác phù hợp nhưng tài khoản bị block.
 Kết quả mong đợi: Thông báo tài khoản đã bị chặn.
@@ -448,8 +432,8 @@ exports.edit_comment = function (req, res) {
   var token = req.body.token;
   var id = req.body.id;
   var idcomment = req.body.id_com;
-  var comment= req.body.comment;
-  if (comment==""||comment.length==0||comment==null||comment==undefined||token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null || idcomment == undefined || idcomment == "" || idcomment == null || id <= 0) {
+  var comment = req.body.comment;
+  if (comment == "" || comment.length == 0 || comment == null || comment == undefined || token == "" || token == undefined || token == null || id == undefined || id == "" || id <= 0 || id == null || idcomment == undefined || idcomment == "" || idcomment == null || id <= 0) {
     Erro.code1004(res);
   } else {
     User.checkToken(token, (err, userchecktoken) => {
@@ -462,15 +446,59 @@ exports.edit_comment = function (req, res) {
               Erro.codeNoNet(res);
             } else {
               if (post.length !== 0) {
-              }else{
+                var block;
+                User.checkIsBlock(post[0].id_user, (err, bocked1) => {
+                  if (err) {
+                    Erro.code1001(res);
+                  }
+                  else {
+
+                    console.log(bocked1);
+                    if (bocked1.length != 0) {
+                      console.log(bocked1[0].id_blockB + "+" + userchecktoken[0].id_user);
+                      if (bocked1[0].id_blockB == userchecktoken[0].id_user) {
+                        block = 1;
+                      }
+                      else {
+                        block = 0;
+                        console.log("block binh luân" + block);
+                      }
+                    }
+                    else {
+                      block = 0;
+                    }
+                  }
+                })
+                if (block == 0) {
+
+                  Comment.updateComment(idcomment, comment, (err, response) => {
+                    if (err) {
+                      Erro.code1001(res);
+                    }
+                    else {
+                      res.send(JSON.stringify({
+                        code: 1000,
+                        message: 'ok',
+                        //  data: response
+                      }))
+                    }
+                  })
+
+                } else {
+                  res.send(JSON.stringify({
+                    message: 'tài khoản đã bị chặn'
+                  }));
+                }
+              } else {
                 Erro.code9992(res);
               }
             }
           })
-        }else{
-         Erro.code9998(res);
+        } else {
+          Erro.code9998(res);
         }
       }
     })
   }
 }
+
