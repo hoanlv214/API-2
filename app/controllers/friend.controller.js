@@ -1,5 +1,6 @@
 var User = require('../models/user.model');
 var Erro = require('../moduleAll/Erro.moduleAll');
+
 /*
 tuan 6
 
@@ -215,7 +216,7 @@ người dùng nào đó.
 14. Trừ màn trang chủ, hệ thống KHÔNG cho phép thực hiện 
 việc cache dữ liệu ở các giao diện sử dụng API này.
 */
-exports.get_list_posts = function (req, res) {
+exports.get_user_friends = function (req, res) {
     var count = req.body.count;
     var token = req.body.token;
     var index = req.body.index;
