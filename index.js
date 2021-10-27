@@ -9,6 +9,7 @@ require('./app/routers/user.router')(app);
 require('./app/routers/post.router')(app);
 require('./app/routers/comment.router')(app);
 require('./app/routers/chat.router')(app);
+require('./app/routers/search.router')(app);
 app.listen(3000,function(){
 console.log("Server ok");
 
