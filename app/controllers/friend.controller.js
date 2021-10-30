@@ -1,6 +1,6 @@
 var User = require('../models/user.model');
 var Erro = require('../moduleAll/Erro.moduleAll');
-
+var Friend = require('../models/friend.model');
 /*
 tuan 6
 
@@ -56,24 +56,12 @@ làm mới và thêm mới vào danh sách các yêu cầu kết bạn.
 
 */
 
-exports.get_requested_friend=function (req, res){
+exports.get_requested_friend = function (req, res) {
 
 }
 
 /*
-API thực hiện việc đưa ra yêu cầu kết bạn từ người chủ tài khoản 
-đến người dùng nào đó.
-Request dạng: POST
-Tham số: token, user_id
-Kết quả đầu ra: 1000|OK Nếu thành công thì mã thông báo 
-thành công được trả về, các keyword được lưu sẽ hiện ra. Nếu 
-không thành công thì sẽ có các thông báo lỗi tương ứng
-
-Chức năng cho phép hiển thị danh sách những người yêu cầu 
-kết bạn với người dùng, danh sách gợi ý kết bạn với người 
-dùng.
-Người dùng có thể chọn kết bạn hoặc từ chối các yêu cầu đó
-
+// tài khoản bị khóa là sao nhỉ chưa có th này bao giờ
 1. Tài khoản người dùng bị khóa khi xử lí lời mời kết bạn 
 (do hệ thống khóa đi mất)
 Kết quả mong đợi: ứng dụng sẽ chuyển sang trang đăng 
@@ -82,35 +70,32 @@ nhập.
 thống khóa đi mất)
 Kết quả mong đợi: thông báo kết bạn không thành công.
 
+// cái này sửa lý được nhưng mà output của thầy đưa là là số lượng người muốn gửi yêu cầu
 3. Người dùng ấn kết bạn và hệ thống lưu dữ liệu thành 
 công.
 Kết quả mong đợi: thông báo kết bạn thành công khi 
 chấp nhận lời mời hoặc thông báo gửi lời mời kết bạn 
 thành công ở mục gợi ý kết bạn.
-4. Người dùng đang kết nối thì Internet bị ngắt.
-Kết quả mong đợi: ứng dụng cần hiện thông báo “Không 
-thể kết nối Internet” càng sớm càng tốt.
-
-5. Người dùng truyền đúng mã phiên đăng nhập và các 
-tham số khác, nhưng không có người dùng nào có user_id 
-như tham số yêu cầu. 
-Kết quả mong đợi: hệ thống báo lỗi về cho ứng dụng, tùy 
-tình trạng mà ứng dụng báo lên cho người dùng biết
-6. Người dùng truyền đúng các tham số, hệ thống trả về
-đúng kết quả, nhưng user_id là của chính người chủ tài 
-khoản. 
-Kết quả mong đợi: Ứng dụng phải cố gắng tự loại bỏ
-trường hợp này. Nếu lỡ truyền lên server thì hệ thống 
-phải báo lỗi về cho ứng dụng, tùy tình trạng mà ứng dụng 
-báo lên cho người dùng biết.
-
 */
-
-exports.set_request_friend=function (req, res){
+exports.set_request_friend= function (req, res) {
+    var token = req.body.token;
+    var user_id = req.body.user_id;
+    if (token == null || token == "undefined" || token.length == 0 || token == "" || user_id == null || user_id == "undefined" || user_id <= 0) {
+        Erro.code1004(res);
+    }
+    User.checkToken(token, (err, userchecktoken) => {
+        if (err) {
+            Erro.code1001(res);
+        } else {
+        }
+    }
+    )
+}
+exports.set_request_friend_bug = function (req, res) {
     var token = req.body.token;
     var user_id = req.body.user_id;
 
-    if (token==null||token=="undefined"||token.length==0||token==""||user_id==null||user_id=="undefined"||user_id<=0) {
+    if (token == null || token == "undefined" || token.length == 0 || token == "" || user_id == null || user_id == "undefined" || user_id <= 0) {
         Erro.code1004(res);
     }
     else {
@@ -118,10 +103,100 @@ exports.set_request_friend=function (req, res){
             if (err) {
                 Erro.code1001(res);
             } else {
-                if (userchecktoken.length !== 0) {
+                if (userchecktoken.length !== 0 && userchecktoken[0].id_user !== user_id) {
+                    var checksetrq = 0;
+                    var listiduser_setrq = userchecktoken[0].set_request_friend.split(",");
 
-                   
-                } else {
+                    for (let i = 0; i < listiduser_setrq.length; i++) {
+
+                        if (listiduser_setrq[i] == user_id) {
+                            checksetrq = 1;
+                            listiduser_setrq.splice(i, 1);
+                        }
+                    }
+                    if (checksetrq == 0) {
+                        if (listiduser_setrq == "0") {
+                            listiduser_setrq = "";
+                        }
+                        listiduser_setrq = listiduser_setrq.toString() + user_id + ",";
+                        console.log("  khi chua gui yeu cau ket ban" + listiduser_setrq);
+                    }
+
+                    Friend.addset_request_friend(userchecktoken[0].id_user, listiduser_setrq.toString(), (err, response) => {
+                        if (err) {
+                            Erro.code1001(res);
+                        }
+                        else {
+                            if (response.changedRows == 1) {
+                                User.getUserbyID(user_id, (err, user) => {
+                                    if (err) {
+                                        Erro.code1001(res);
+                                    } else {
+                                        if (user.length != 0) {
+
+                                            var checkgetrq = 0;
+                                            var listiduser_getrq = user[0].get_requested_friend.split(",");
+
+                                            for (let i = 0; i < listiduser_getrq.length; i++) {
+                                                if (listiduser_getrq[i] == userchecktoken[0].id_user) {
+                                                    checkgetrq = 1;
+                                                    listiduser_getrq.splice(i, 1);
+                                                }
+                                            }
+                                            if (checkgetrq == 0) {
+                                                if (listiduser_getrq == "0") {
+                                                    listiduser_getrq = "";
+                                                }
+                                                listiduser_getrq = listiduser_getrq.toString() + userchecktoken[0].id_user + ",";
+                                                console.log("ds nguoi  gui yeu  cau den" + listiduser_getrq);
+                                            }
+                                            Friend.get_requested_friend(user_id, listiduser_getrq.toString(), (err, response) => {
+                                                if (err) {
+                                                    Erro.code1001(res);
+                                                }
+                                                else {
+                                                    if (response.changedRows == 1) {
+                                                        User.checkToken(token, (err, userchecktokennew) => {
+                                                            if (err) {
+                                                                Erro.code1001(res);
+                                                            } else {
+                                                                if (userchecktokennew.length !== 0) {
+                                                                    res.send(JSON.stringify({
+                                                                        code: 1000,
+                                                                        message: 'ok',
+                                                                        data: userchecktokennew[0].set_request_friend.split(",").length - 1,
+                                                                    }))
+
+                                                                }
+                                                            }
+                                                        })
+
+                                                    } else {
+                                                        Erro.code9996(res);
+                                                    }
+                                                }
+                                            })
+                                        }
+                                        else {
+                                            Erro.code9996(res);
+                                        }
+                                    }
+                                })
+                            }
+                            else {
+                                Erro.codeNoNet(res);
+                            }
+                        }
+                    })
+                }
+                else if (userchecktoken.length !== 0 && userchecktoken[0].id_user == user_id) {
+                    res.send(JSON.stringify({
+                        code: 9999,
+                        message: 'ok',
+                        data: "user_id là của chính người chủ tài khoản.",
+                    }))
+                }
+                else {
                     Erro.code9998(res);
                 }
             }
@@ -222,7 +297,7 @@ exports.get_user_friends = function (req, res) {
     var index = req.body.index;
     var user_id = req.body.user_id;
 
-    if (count == ''||count <=0  || index == ''||index <=0 || count == null || index == null || index == undefined || index == undefined) {
+    if (count == '' || count <= 0 || index == '' || index <= 0 || count == null || index == null || index == undefined || index == undefined) {
         Erro.code1004(res);
     }
     else {
@@ -232,7 +307,7 @@ exports.get_user_friends = function (req, res) {
             } else {
                 if (userchecktoken.length !== 0) {
 
-                   
+
                 } else {
                     Erro.code9998(res);
                 }

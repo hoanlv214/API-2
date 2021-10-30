@@ -4,13 +4,21 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended:false}));
 app.use(bodyParser.json());
+app.set("view engine", "ejs");
+app.set("views","./view");
 
+
+app.get('/admin', function(req, res){
+    res.render("admin");
+})
 require('./app/routers/user.router')(app);
 require('./app/routers/post.router')(app);
 require('./app/routers/comment.router')(app);
 require('./app/routers/chat.router')(app);
 require('./app/routers/search.router')(app);
 require('./app/routers/friend.router')(app);
+
+
 app.listen(3000,function(){
 console.log("Server ok");
 
