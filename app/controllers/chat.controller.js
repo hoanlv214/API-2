@@ -1,5 +1,8 @@
+
+var User = require('../models/user.model');
 exports.getchat = function (req, res) {
-    // res.send("hello world");
-   // res.sendFile('D:\API\app\view\appchat.html');
-    res.sendFile('D:\API\app\view\appchat.html')
+  User.get_all(function (data) {
+ //   console.log(data);
+    res.render('user-list', { title: 'User List1', userData: data });
+  });
 }

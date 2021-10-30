@@ -5,12 +5,8 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended:false}));
 app.use(bodyParser.json());
 app.set("view engine", "ejs");
-app.set("views","./view");
+app.set("views","./app/views");
 
-
-app.get('/admin', function(req, res){
-    res.render("admin");
-})
 require('./app/routers/user.router')(app);
 require('./app/routers/post.router')(app);
 require('./app/routers/comment.router')(app);
