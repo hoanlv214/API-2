@@ -1,6 +1,75 @@
 var User = require('../models/user.model');
 var Erro = require('../moduleAll/Erro.moduleAll');
 var Friend = require('../models/friend.model');
+
+/*
+API thực hiện việc lấy danh sách các người bạn hiện tại của 
+người dùng nào đó
+Phương thức: POST
+Tham số: token, user_id (nếu bỏ trống tức lấy danh sách bạn 
+của chính người đang đăng nhập), index, count
+Kết quả đầu ra: Nếu thành công thì mã thông báo thành công 
+được trả về, các keyword được lưu sẽ hiện ra. Nếu không 
+thành công thì sẽ có các thông báo lỗi tương ứng
+Chỉ chấp nhận tham số user_id nếu request là từ phía trang 
+quản trị, ứng dụng nếu truyền user_id là của người khác thì 
+sẽ coi là không truyền tham số này.
+
+1. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác. 
+Kết quả mong đợi: 1000 | OK (Thông báo thành công), 
+gửi cho ứng dụng các thông tin cần thiết.
+2. Người dùng gửi sai mã phiên đăng nhập (mã bị trống 
+hoặc quá ngắn hoặc mã phiên đăng nhập cũ) còn các 
+tham số khác hợp lệ.
+Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
+trang đăng nhập.
+
+3. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác nhưng không có kết quả nào được trả về.
+Kết quả mong đợi: Hiển thị không tìm thấy kết quả nào.
+4. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác. Nhưng người dùng đã bị khóa tài khoản 
+(do hệ thống khóa đi).
+Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
+trang đăng nhập.
+
+5. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác, nhưng kết quả trả về có các thông số
+username hoặc id có giá trị không chuẩn. 
+Kết quả mong đợi: ứng dụng phải ẩn đi các kết quả không 
+hợp lệ trước khi hiện lên.
+6. Người dùng truyền đúng các tham số nhưng các user đã 
+kết bạn trả về không theo đúng thứ tự chữ cái của tên 
+người bạn. 
+Kết quả mong đợi: ứng dụng sẽ cố gắng sắp xếp lại các kết 
+quả theo đúng thứ tự chữ cái.
+
+7. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác để lấy các bạn của chính mình, nhưng kết 
+quả trả về có thời gian kết bạn bị sai. 
+Kết quả mong đợi: ứng dụng vẫn phải hiển thị người bạn 
+này, thời gian kết bạn có thể ẩn đi.
+8. Người dùng truyền đúng mã phiên đăng nhập và các 
+tham số khác, nhưng kết quả trả về có số bạn chung 
+KHÔNG CHUẨN ở một số người bạn. 
+Kết quả mong đợi: ứng dụng sẽ không hiển thị số bạn 
+chung ở các người bạn này
+
+
+*/
+
+exports.set_request_friend= function (req, res) {
+    var token = req.body.token;
+    var user_id = req.body.user_id;
+    var index= req.body.index;
+    var count = req.body.count;
+    if (token == null || token == "undefined" || token.length == 0 || token == "" || user_id == null || user_id == "undefined" || user_id <= 0) {
+        Erro.code1004(res);
+    }
+}
+
+
 /*
 tuan 6
 

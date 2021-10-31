@@ -246,13 +246,13 @@ $(document).ready(function(){
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-             <th>STT</th>
-            <th>Họ và tên</th>
-            <th>Mật khẩu</th>
-            <th>Số điện thoại</th>
-            <th>online</th>
+             <th>ID_User</th>
+            <th>User_Name</th>
+            <th>Link_User</th>
+            <th>Online</th>
             <th>isActive</th>
-            <th>Đăng nhập</th>
+            <th>LastLogin</th>
+            <th>Active</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -320,14 +320,12 @@ $(document).ready(function(){
         userData.forEach(function(data){
         %>
         <tr>
-            <td><%=i; %></td>
+            <td><%=data.id_user%></td>
             <td><%=data.name_user %></td>
-            <td><%=data.pass_user %></td>
-            <td><%=data.sdt_user %></td>
-            <td><%=data.country %></td>
-            <td><%=data.sdt_user %></td>
-            <td><%=data.country %></td>
-
+            <td><%=data.linkuser %></td>
+            <td><%=data.online %></td>
+            <td><%=data.isactive %></td>
+            <td><%=data.lastlogin %></td>
             <td>
                 <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
                 <a href="/users/view/<%=data.id%>" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
