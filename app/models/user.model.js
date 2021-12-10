@@ -141,5 +141,40 @@ User.checkIsBlock = (idA, result) =>{
     })
 }
 
+// mới thêm vào đề authenticated
+User.authcheckgmail_user = (gamil) => {
+    return new Promise((async (resolve, reject) => {
+        try {
+            db.query('SELECT * FROM user WHERE sdt_user = ?', gamil, (err, res) => {
+                if (err) {
+                    console.log('Error check phone number', err);
+                    result(err, null);
+                } else {
+                    console.log('Check phone number successfully');
+                    resolve(res);
+                }
+            })
+        } catch (e) {
+            reject(e);
+        }
+    }));
+};
+User.authcheckuserbyid = (id) => {
+    return new Promise((async (resolve, reject) => {
+        try {
+            db.query('SELECT * FROM user WHERE id_user = ?', id, (err, res) => {
+                if (err) {
+                    console.log('Error check phone number', err);
+                    result(err, null);
+                } else {
+                  //  console.log('Check phone number successfully');
+                    resolve(res);
+                }
+            })
+        } catch (e) {
+            reject(e);
+        }
+    }));
+};
 
 module.exports=User;

@@ -1,18 +1,22 @@
 
 module.exports = function (router) {
 
- var adminController = require('../controllers/admin.controller');
-    router.get('/admin/getlistuser', adminController.getlistuser);
+  var adminController = require('../controllers/admin.controller');
 
-    router.post('/admin/login',adminController.login_admin);
- 
-   //router.post('/admin/logout',adminController.logout_admin);
+  // tuan 4 thieu
+  //chat
 
-   // tuan 4 thieu
-   //chat
+  // => 3 cai nay lam dễ mà ko hiểu làm gì
+  //  7. API xác nhận quyền admin
+  //9. API cấp quyền 
+  //10. API lấy thông tin phân tích
+  router.get('/admin/getlistuser', adminController.getlistuser);
 
-   // => 3 cai nay lam dễ mà ko hiểu làm gì
- //  7. API xác nhận quyền admin
- //9. API cấp quyền 
-//10. API lấy thông tin phân tích
+  router.post('/admin/login', adminController.login_admin);
+
+
+  // tuan 5
+   router.post('/admin/set_user_state',adminController.set_user_state);
+   router.post('/admin/delete_user',adminController.delete_user);
+   router.post('/admin/get_basic_user_info',adminController.get_basic_user_info);
 }

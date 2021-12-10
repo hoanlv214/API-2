@@ -9,10 +9,9 @@ module.exports = function (router) {
 
 
     // tuan6
-    //Get_requested_friend
+    //Get_requested_friend : lấy lời mời kết bạn
     router.post('/friend/get_requested_friend', friendController.get_requested_friend);
 
-    // tuan 6
     router.post('/friend/set_request_friend', friendController.set_request_friend);
 
     //git push -u

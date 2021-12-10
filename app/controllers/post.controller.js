@@ -544,7 +544,7 @@ hoặc làm mới lại trang cá nhân (tùy thuộc tình huống).
 4. Người dùng truyền đúng các thông tin. Nhưng người 
 dùng đã bị khóa tài khoản (do hệ thống khóa đi mất).
 Kết quả mong đợi: ứng dụng sẽ phải đẩy người dùng sang 
-trang đăng nhập.
+trang đăng nhập. nhập
 */
 
 exports.adlike = function (req, res) {

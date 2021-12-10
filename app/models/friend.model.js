@@ -17,6 +17,20 @@ Friend.CheckFriendByID= (id_friend, result) => {
     })
 }
 
+Friend.CheckAllFriendByIdUserA= (id_userA, result) => {
+      console.log('checkahllfriend');
+    var sql = 'SELECT * FROM tbl_friend WHERE id_user_a = ? OR id_user_b = ?';
+    db.query(sql, [id_userA, id_userA], function (err, res) {
+      if (err){
+        console.log('Check friend erro');
+      }
+     else{
+        console.log('Check friend successfully');
+        result(null, res);
+     }
+    });
+}
+
 Friend.get_requested_friend= (id_user,get_requested_friend, result) =>{
     db.query(`UPDATE user SET get_requested_friend = '${get_requested_friend}' WHERE id_user = '${id_user}'`,(err, res) =>{
         if (err){
