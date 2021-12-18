@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head itemscope="" itemtype="http://schema.org/WebSite">
+    <title itemprop="name">Holaz</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta name="viewport" content="width=device-width">
+    <link rel="shortcut icon" type="image/x-icon" href="/app/public/icons/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+</head>
+
+<body>
+    <div id="snippetContent">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script> -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card chat-app">
+                        <div id="plist" class="people-list">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-search"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Search...">
+                            </div>
+                            <!-- Đặt link avt của những người đã thêm bằng add friend-->
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                <li class="clearfix"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                                        alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Vincent Porter</div>
+                                        <div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago</div>
+                                    </div>
+                                </li>
+                                <li class="clearfix active"> <img
+                                        src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Aiden Chavez</div>
+                                        <div class="status"> <i class="fa fa-circle online"></i> online</div>
+                                    </div>
+                                </li>
+                                <li class="clearfix"> <img src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                                        alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Mike Thomas</div>
+                                        <div class="status"> <i class="fa fa-circle online"></i> online</div>
+                                    </div>
+                                </li>
+                                <li class="clearfix"> <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                                        alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Christian Kelly</div>
+                                        <div class="status"> <i class="fa fa-circle offline"></i> left 10 hours ago
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="clearfix"> <img src="https://bootdey.com/img/Content/avatar/avatar8.png"
+                                        alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Monica Ward</div>
+                                        <div class="status"> <i class="fa fa-circle online"></i> online</div>
+                                    </div>
+                                </li>
+                                <li class="clearfix"> <img src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                                        alt="avatar">
+                                    <div class="about">
+                                        <div class="name">Dean Henry</div>
+                                        <div class="status"> <i class="fa fa-circle offline"></i> offline since Oct 28
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <%- content %>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const sender = prompt("Bạn tên là gì");
+    const receiver = prompt("Bạn muốn gửi đến");
+
+    const chatForm = document.querySelector('#chat-form');
+    const chatMes = document.querySelector('#chat-mes');
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const message = chatMes.value
+        socket.emit('on-chat', {
+            message: message,
+            sender: sender,
+            receiver: receiver
+        });
+        chatMes.value = ''
+    })
+
+    const messages = document.querySelector('#messages');
+    socket.on('user-chat', (data) => {
+        const chatItem = document.createElement('li');
+        chatItem.textContent = data.sender + ":" + data.message;
+        messages.appendChild(chatItem);
+        console.log(data.message)
+    })
+
+</script>
+
+</html>

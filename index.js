@@ -1,5 +1,6 @@
 var express= require('express');
 var app = express();
+const path = require('path');
 
 var bodyParser = require('body-parser');
 require('dotenv').config();
@@ -18,9 +19,11 @@ initializePassport(
     id => users.find(user => user.id === id)
   )
 
+  app.use(express.static(path.join(__dirname, 'public')));
   
 app.use(bodyParser.urlencoded({ extended:false}));
 app.use(bodyParser.json());
+app.engine('ejs', require('express-ejs-extend')); // add this line
 app.set("view engine", "ejs");
 app.set("views","./app/views");
 
@@ -41,7 +44,9 @@ app.locals.error =null;
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('loginuser/login.ejs')
 })
-
+app.get('/trangchu', checkAuthenticated, (req, res) => {
+  res.render('conversation.ejs')
+})
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
   successRedirect: '/trangchu',
   failureRedirect: '/login',
